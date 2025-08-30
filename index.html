@@ -29,11 +29,43 @@
     .hero{position:relative;min-height:100dvh;display:flex;align-items:flex-start;justify-content:center;padding-top:.2vh;background-size:cover;background-position:center top;background-attachment:fixed;background-image:linear-gradient(var(--overlay),var(--overlay)),var(--bg1);overflow:hidden;scroll-snap-align:start}
     .hero::before{content:"";position:absolute;inset:0;pointer-events:none;mix-blend-mode:overlay;background:radial-gradient(120% 60% at 50% 40%,rgba(255,255,255,.06),transparent 60%),linear-gradient(120deg,rgba(255,255,255,.04),rgba(0,0,0,.02),rgba(255,255,255,.04));animation:waterShift 30s ease-in-out infinite alternate}
     /* bottom ripple: slightly lower height & slower; hole over the boat (only on page 1) */
-    .hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:15vh;pointer-events:none;background:radial-gradient(60% 100% at 50% 100%,rgba(255,255,255,.14),transparent 65%),repeating-linear-gradient(to right,rgba(255,255,255,.16) 0 2px,transparent 2px 9px);background-size:120% 100%,360px 100%;background-position:50% 100%,0 100%;mix-blend-mode:soft-light;filter:blur(2px);animation:waterDrift 120s linear infinite;-webkit-mask-image: radial-gradient(60px 40px at 50% 92%, transparent 98%, white 100%);mask-image: radial-gradient(60px 40px at 50% 92%, transparent 98%, white 100%)}
-    .hero.no-mask::after{-webkit-mask-image:none;mask-image:none}
+    /* Stronger ripple: taller, brighter, crisper lines, slightly faster */
+    /* REPLACE your .hero::after with this */
+    /* REPLACE your .hero::after with this */
+    .hero::after{
+      content:"";
+      position:absolute;
+      left:0; right:0; bottom:0;
+      height:13vh; /* shorter band */
+      pointer-events:none;
 
-    @keyframes waterShift{0%{transform:translate3d(-1%,-.5%,0) scale(1.01)}100%{transform:translate3d(1%,.5%,0) scale(1.02)}}
-    @keyframes waterDrift{0%{background-position:50% 100%,0 100%}100%{background-position:52% 100%,900px 100%}}
+      /* thin, more frequent shimmer lines */
+      background:
+        radial-gradient(60% 100% at 50% 100%,
+          rgba(255,255,255,.18), transparent 65%),
+        repeating-linear-gradient(to right,
+          rgba(255,255,255,.18) 0 1px,  /* very thin line */
+          transparent 1px 6px);         /* smaller gap = more lines */
+
+      background-size:120% 100%, 300px 100%; /* tighter repeat */
+      background-position:50% 100%, 0 100%;
+
+      mix-blend-mode:soft-light;
+      filter:blur(1.2px);
+
+      animation:waterDriftShimmer 110s linear infinite;
+
+      /* keep boat ripple-free */
+      -webkit-mask-image: radial-gradient(60px 40px at 50% 92%,
+        transparent 98%, white 100%);
+      mask-image: radial-gradient(60px 40px at 50% 92%,
+        transparent 98%, white 100%);
+    }
+
+    @keyframes waterDriftShimmer{
+      0%   { background-position:50% 100%, 0 100%; }
+      100% { background-position:52% 100%, 950px 100%; }
+    }
 
     .container{width:100%;max-width:var(--maxw);padding:10px 24px 56px;text-align:center}
     .site-title{font-family:'Allura',cursive;font-size:clamp(36px,5.6vw,84px);margin:0 0 2px;font-weight:400;text-shadow:0 3px 18px rgba(0,0,0,.45),0 0 2px rgba(0,0,0,.6)}
@@ -147,7 +179,7 @@
           <div class="links">
             <a href="https://uwnetid-my.sharepoint.com/:b:/r/personal/jblooms_uw_edu/Documents/Cheat%20codes/Epic%20and%20CPRS%20Efficiency%20AHD/AHD%20Epic%20Optimization%20AHD%202025%20Josh%20Bloomstein.pdf?csf=1&web=1&e=4QcIlE" class="sparkle-btn" target="_blank" rel="noopener">Epic Optimization</a>
             <a href="https://uwnetid-my.sharepoint.com/personal/mackhh_uw_edu/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fmackhh%5Fuw%5Fedu%2FDocuments%2FMack%27s%20Frameworks&ga=1" class="sparkle-btn" target="_blank" rel="noopener">Frameworks by Mack</a>
-            <a href="https://www.openevidence.com/" class="sparkle-btn" target="_blank" rel="noopener">Open Evidence</a>
+            <a href="https://www.openevidence.com/" class="sparkle-btn" target="_blank" rel="noopener">OpenEvidence</a>
             <a href="https://chatgpt.com/" class="sparkle-btn" target="_blank" rel="noopener">ChatGPT</a>
             <a id="huskyBtn" href="#" class="sparkle-btn">Random Husky Generator</a>
             <a href="https://uwnetid-my.sharepoint.com/:f:/r/personal/jblooms_uw_edu/Documents/Cheat%20codes?csf=1&web=1&e=xXEw3V" class="sparkle-btn" target="_blank" rel="noopener">Additional Resources</a>
@@ -239,7 +271,9 @@
     </div>
   </div>
 
-  <div class="credit">PC: Hasan Nadeem</div>
+  <link href="https://fonts.googleapis.com/css2?family=Tangerine&display=swap" rel="stylesheet">
+
+  <div class="credit" style="font-family: 'Tangerine', cursive; font-size: 28px;"">PC: Hasan Nadeem</div>
 
   <script>
     // Equalize column heights to the tallest
