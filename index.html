@@ -28,43 +28,51 @@
 
     .hero{position:relative;min-height:100dvh;display:flex;align-items:flex-start;justify-content:center;padding-top:.2vh;background-size:cover;background-position:center top;background-attachment:fixed;background-image:linear-gradient(var(--overlay),var(--overlay)),var(--bg1);overflow:hidden;scroll-snap-align:start}
     .hero::before{content:"";position:absolute;inset:0;pointer-events:none;mix-blend-mode:overlay;background:radial-gradient(120% 60% at 50% 40%,rgba(255,255,255,.06),transparent 60%),linear-gradient(120deg,rgba(255,255,255,.04),rgba(0,0,0,.02),rgba(255,255,255,.04));animation:waterShift 30s ease-in-out infinite alternate}
-    /* bottom ripple: slightly lower height & slower; hole over the boat (only on page 1) */
-    /* Stronger ripple: taller, brighter, crisper lines, slightly faster */
-    /* REPLACE your .hero::after with this */
-    /* REPLACE your .hero::after with this */
+    /* Base ripple (always present, but hidden & paused) */
     .hero::after{
       content:"";
       position:absolute;
       left:0; right:0; bottom:0;
-      height:13vh; /* shorter band */
+      height:15vh;                     /* original height */
       pointer-events:none;
 
-      /* thin, more frequent shimmer lines */
       background:
         radial-gradient(60% 100% at 50% 100%,
-          rgba(255,255,255,.18), transparent 65%),
+          rgba(255,255,255,.14), transparent 65%),
         repeating-linear-gradient(to right,
-          rgba(255,255,255,.18) 0 1px,  /* very thin line */
-          transparent 1px 6px);         /* smaller gap = more lines */
-
-      background-size:120% 100%, 300px 100%; /* tighter repeat */
+          rgba(255,255,255,.16) 0 2px, transparent 2px 9px);
+      background-size:120% 100%, 360px 100%;
       background-position:50% 100%, 0 100%;
-
       mix-blend-mode:soft-light;
-      filter:blur(1.2px);
+      filter:blur(2px);
 
-      animation:waterDriftShimmer 110s linear infinite;
+      /* define animation but keep it paused initially */
+      animation: waterDriftVH 120s linear infinite;
+      animation-play-state: paused;
+      will-change: background-position;
 
-      /* keep boat ripple-free */
+      /* keep boat clear */
       -webkit-mask-image: radial-gradient(60px 40px at 50% 92%,
         transparent 98%, white 100%);
       mask-image: radial-gradient(60px 40px at 50% 92%,
         transparent 98%, white 100%);
+
+      opacity: 0;                      /* hidden by default */
+      transition: opacity .4s ease;    /* nice fade-in when enabled */
     }
 
-    @keyframes waterDriftShimmer{
-      0%   { background-position:50% 100%, 0 100%; }
-      100% { background-position:52% 100%, 950px 100%; }
+    /* Enable only when viewport is tall enough */
+    @media (min-height: 700px){
+      .hero::after{
+        opacity: 1;
+        animation-play-state: running;  /* unpause */
+      }
+    }
+
+    /* Keyframes kept outside media queries */
+    @keyframes waterDriftVH{
+      0%   { background-position: 50% 100%,   0   100%; }
+      100% { background-position: 52% 100%, 900px 100%; }
     }
 
     .container{width:100%;max-width:var(--maxw);padding:10px 24px 56px;text-align:center}
@@ -271,9 +279,9 @@
     </div>
   </div>
 
-  <link href="https://fonts.googleapis.com/css2?family=Tangerine&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
 
-  <div class="credit" style="font-family: 'Tangerine', cursive; font-size: 28px;"">PC: Hasan Nadeem</div>
+  <div class="credit" style="font-family: 'Dancing Script', cursive; font-size: 20px;"">PC: Hasan Nadeem</div>
 
   <script>
     // Equalize column heights to the tallest
