@@ -92,6 +92,59 @@
 
     .scroll-cue{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);font-size:13px;opacity:.85}
 
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hover-group {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 10px;
+    }
+
+    .button-row .sparkle-btn,
+    .hover-group .trigger-link {
+      margin: 12px 0;
+    }
+
+    .reveal-link {
+      position: absolute;
+      top: 0;
+      left: 100%;
+      margin-left: 10px;
+
+      background: rgba(0, 0, 0, .15);
+      color: var(--text);
+      border: 2px solid var(--gold);
+      border-radius: 12px;
+      text-decoration: none;
+      padding: 9px 16px;
+      white-space: nowrap;
+      font-size: 15px;
+      font-weight: 600;
+
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.6s ease;
+    }
+
+    .reveal-link.is-visible {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .reveal-link.is-fading {
+      opacity: 0;
+    }
+
     /* dropdowns */
     details{background:rgba(0,0,0,.15);border-radius:14px;margin:14px 0;box-shadow:0 10px 30px rgba(0,0,0,.18);backdrop-filter:blur(2px);overflow:hidden}
     summary{cursor:pointer;list-style:none;padding:18px 22px;font-weight:700;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--gold)}
@@ -191,8 +244,15 @@
           <div class="links">
             <a href="https://uwnetid-my.sharepoint.com/:f:/r/personal/jblooms_uw_edu/Documents/Cheat%20codes/Epic%20and%20CPRS%20Efficiency%20AHD?csf=1&web=1&e=l29HVW" class="sparkle-btn" target="_blank" rel="noopener">Epic Optimization</a>
             <a href="https://urldefense.com/v3/__https://uwnetid-my.sharepoint.com/:f:/g/personal/mackhh_uw_edu/EhFW9Jb-Kr1GsClGNGXIdvEBrvq_bK0UDb1zIAY3cpsoAQ?e=vIQtKj__;!!K-Hz7m0Vt54!nbTZ3uTUotSy4E7IKWs45DnlclLPFYb0EN_JFutx6Z7jw4uqsu0gxzkUnUknMmzJfQp8aasHJha51w$" class="sparkle-btn" target="_blank" rel="noopener">Frameworks by Mack</a>
+          </div>
+
+          <div class="hover-group">
             <a href="https://www.openevidence.com/" class="sparkle-btn" target="_blank" rel="noopener">OpenEvidence</a>
-            <a href="https://chatgpt.com/" class="sparkle-btn" target="_blank" rel="noopener">ChatGPT</a>
+            <a href="https://chatgpt.com/" class="sparkle-btn trigger-link" target="_blank" rel="noopener">ChatGPT</a>
+            <a href="https://chatgpt.com/g/g-688aa61b3cec81918ee892c49309f7a9-pubmed-directed-gpt/" class="sparkle-btn reveal-link" target="_blank" rel="noopener">PubMed Directed GPT</a>
+          </div>
+
+          <div class="links 2">
             <a id="huskyBtn" href="#" class="sparkle-btn">Random Husky Generator</a>
           </div>
         </article>
@@ -363,5 +423,50 @@
       }
     })();
   </script>
+
+  <script>
+      // NEW: timed show → linger → slow fade → hide (cursor independent)
+      (function () {
+        const groups = document.querySelectorAll('.hover-group');
+
+        groups.forEach(group => {
+          const trigger = group.querySelector('.trigger-link');
+          const reveal  = group.querySelector('.reveal-link');
+          if (!trigger || !reveal) return;
+
+          let fadeTimer = null;
+          let hideTimer = null;
+
+          function showLink() {
+            // clear any pending fades/hides and reset classes
+            clearTimeout(fadeTimer);
+            clearTimeout(hideTimer);
+            reveal.classList.remove('is-fading');
+            reveal.classList.add('is-visible');
+
+            // linger time before starting fade (adjust as you like)
+            fadeTimer = setTimeout(() => {
+              reveal.classList.add('is-fading');
+
+              // wait for CSS transition to finish before fully hiding
+              const fadeDurationMs = 1500; // CHANGED: slow fade duration
+              hideTimer = setTimeout(() => {
+                reveal.classList.remove('is-visible', 'is-fading');
+              }, fadeDurationMs);
+            }, 1500); // CHANGED: linger ~2.5s before fading
+          }
+
+          // Trigger on hover and click for accessibility
+          trigger.addEventListener('mouseenter', showLink);  // NEW
+          trigger.addEventListener('focus', showLink);       // NEW (keyboard)
+          trigger.addEventListener('click', showLink);       // NEW
+
+          // Optional: re-show if user hovers the revealed button
+          reveal.addEventListener('mouseenter', () => {      // NEW
+            showLink();
+          });
+        });
+      })();
+    </script>
 </body>
 </html>
