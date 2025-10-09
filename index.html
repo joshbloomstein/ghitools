@@ -100,7 +100,52 @@
       justify-content: center;
     }
 
-    .hover-group {
+    .hover-group1 {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin: 0 10px;
+    }
+
+    .button-row .sparkle-btn,
+    .hover-group1 .trigger-link {
+      margin: 12px 0;
+    }
+
+    .reveal-link1 {
+      display: block;
+      margin-top: 8px;
+
+      background: rgba(0, 0, 0, .15);
+      color: var(--text);
+      border: 2px solid var(--gold);
+      border-radius: 12px;
+      text-decoration: none;
+      padding: 9px 16px;
+      white-space: nowrap;
+      font-size: 15px;
+      font-weight: 600;
+
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.6s ease;
+    }
+
+    .reveal-link1.is-visible {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .reveal-link1.is-fading {
+      opacity: 0;
+    }
+
+    .hover-group2 {
       position: relative;
       display: flex;
       align-items: center;
@@ -109,11 +154,11 @@
     }
 
     .button-row .sparkle-btn,
-    .hover-group .trigger-link {
+    .hover-group2 .trigger-link {
       margin: 12px 0;
     }
 
-    .reveal-link {
+    .reveal-link2 {
       position: absolute;
       top: 0;
       left: 100%;
@@ -135,13 +180,13 @@
       transition: opacity 0.6s ease;
     }
 
-    .reveal-link.is-visible {
+    .reveal-link2.is-visible {
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
     }
 
-    .reveal-link.is-fading {
+    .reveal-link2.is-fading {
       opacity: 0;
     }
 
@@ -218,10 +263,15 @@
           <div class="links">
             <a href="https://www.uptodate.com/contents/table-of-contents/whats-new" class="sparkle-btn" target="_blank" rel="noopener">UpToDate</a>
             <a href="https://www.mdcalc.com/" class="sparkle-btn" target="_blank" rel="noopener">MDCalc</a>
-            <a href="https://www.office.com/" class="sparkle-btn" target="_blank" rel="noopener">Microsoft 365</a>
             <span class="break"><a href="https://www.visualdx.com/" class="sparkle-btn" target="_blank" rel="noopener">VisualDx</a></span>
             <a href="https://webedition-sanfordguide-com.offcampus.lib.washington.edu/en" class="sparkle-btn" target="_blank" rel="noopener">Sanford Guide</a>
             <a href="https://anatomymapper.com/" class="sparkle-btn" target="_blank" rel="noopener">Anatomy Mapper</a>
+          </div>
+
+          <div class="hover-group1">
+            <a href="https://www.office.com/" class="sparkle-btn trigger-link" target="_blank" rel="noopener">Microsoft 365</a>
+            <a href="https://outlook.office.com/" class="sparkle-btn reveal-link1" target="_blank" rel="noopener">Outlook</a>
+            <a href="https://onedrive.live.com/login" class="sparkle-btn reveal-link1" target="_blank" rel="noopener">OneDrive</a>
           </div>
         </article>
 
@@ -246,10 +296,10 @@
             <a href="https://urldefense.com/v3/__https://uwnetid-my.sharepoint.com/:f:/g/personal/mackhh_uw_edu/EhFW9Jb-Kr1GsClGNGXIdvEBrvq_bK0UDb1zIAY3cpsoAQ?e=vIQtKj__;!!K-Hz7m0Vt54!nbTZ3uTUotSy4E7IKWs45DnlclLPFYb0EN_JFutx6Z7jw4uqsu0gxzkUnUknMmzJfQp8aasHJha51w$" class="sparkle-btn" target="_blank" rel="noopener">Frameworks by Mack</a>
           </div>
 
-          <div class="hover-group">
+          <div class="hover-group2">
             <a href="https://www.openevidence.com/" class="sparkle-btn" target="_blank" rel="noopener">OpenEvidence</a>
             <a href="https://chatgpt.com/" class="sparkle-btn trigger-link" target="_blank" rel="noopener">ChatGPT</a>
-            <a href="https://chatgpt.com/g/g-688aa61b3cec81918ee892c49309f7a9-pubmed-directed-gpt/" class="sparkle-btn reveal-link" target="_blank" rel="noopener">PubMed Directed GPT</a>
+            <a href="https://chatgpt.com/g/g-688aa61b3cec81918ee892c49309f7a9-pubmed-directed-gpt/" class="sparkle-btn reveal-link2" target="_blank" rel="noopener">PubMed Directed GPT</a>
           </div>
 
           <div class="links 2">
@@ -441,11 +491,60 @@
   <script>
       // NEW: timed show → linger → slow fade → hide (cursor independent)
       (function () {
-        const groups = document.querySelectorAll('.hover-group');
+        const groups = document.querySelectorAll('.hover-group1');
 
         groups.forEach(group => {
           const trigger = group.querySelector('.trigger-link');
-          const reveal  = group.querySelector('.reveal-link');
+          const reveals = group.querySelectorAll('.reveal-link1');
+          if (!trigger || !reveals.length) return;
+
+          let fadeTimer = null;
+          let hideTimer = null;
+
+          function showLink() {
+            // clear any pending fades/hides and reset classes
+            clearTimeout(fadeTimer);
+            clearTimeout(hideTimer);
+            reveals.forEach(r => {
+              r.classList.remove('is-fading');
+              r.classList.add('is-visible');
+            });
+
+            // linger time before starting fade (adjust as you like)
+            fadeTimer = setTimeout(() => {
+              reveals.forEach(r => r.classList.add('is-fading'));
+
+              // wait for CSS transition to finish before fully hiding
+              const fadeDurationMs = 1500; // CHANGED: slow fade duration
+              hideTimer = setTimeout(() => {
+                reveals.forEach(r => {
+                  r.classList.remove('is-visible', 'is-fading');
+                });
+              }, fadeDurationMs);
+            }, 1500); // CHANGED: linger ~2.5s before fading
+          }
+
+          // Trigger on hover and click for accessibility
+          trigger.addEventListener('mouseenter', showLink);  // NEW
+          trigger.addEventListener('focus', showLink);       // NEW (keyboard)
+          trigger.addEventListener('click', showLink);       // NEW
+
+          // Optional: re-show if user hovers the revealed buttons
+          reveals.forEach(r => {
+            r.addEventListener('mouseenter', showLink);
+          });
+        });
+      })();
+    </script>
+
+  <script>
+      // NEW: timed show → linger → slow fade → hide (cursor independent)
+      (function () {
+        const groups = document.querySelectorAll('.hover-group2');
+
+        groups.forEach(group => {
+          const trigger = group.querySelector('.trigger-link');
+          const reveal  = group.querySelector('.reveal-link2');
           if (!trigger || !reveal) return;
 
           let fadeTimer = null;
@@ -482,5 +581,6 @@
         });
       })();
     </script>
+
 </body>
 </html>
