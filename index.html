@@ -415,7 +415,6 @@
   </div>
 
   <script>
-    // Equalize column heights to the tallest
     function equalizeCards(){
       const cards=[...document.querySelectorAll('.card')];
       cards.forEach(c=>c.style.height='auto');
@@ -425,7 +424,6 @@
     window.addEventListener('load', equalizeCards);
     window.addEventListener('resize', ()=>{ clearTimeout(window._eqt); window._eqt=setTimeout(equalizeCards,120); });
 
-    // One-notch wheel & arrow key navigation (slower, snapped)
     (function(){
       const sections=[...document.querySelectorAll('.hero')];
       let busy=false;
@@ -492,7 +490,6 @@
   </script>
 
   <script>
-      // NEW: timed show → linger → slow fade → hide (cursor independent)
       (function () {
         const groups = document.querySelectorAll('.hover-group1');
 
@@ -505,7 +502,6 @@
           let hideTimer = null;
 
           function showLink() {
-            // clear any pending fades/hides and reset classes
             clearTimeout(fadeTimer);
             clearTimeout(hideTimer);
             reveals.forEach(r => {
@@ -513,26 +509,22 @@
               r.classList.add('is-visible');
             });
 
-            // linger time before starting fade (adjust as you like)
             fadeTimer = setTimeout(() => {
               reveals.forEach(r => r.classList.add('is-fading'));
 
-              // wait for CSS transition to finish before fully hiding
-              const fadeDurationMs = 1500; // CHANGED: slow fade duration
+              const fadeDurationMs = 1500;
               hideTimer = setTimeout(() => {
                 reveals.forEach(r => {
                   r.classList.remove('is-visible', 'is-fading');
                 });
               }, fadeDurationMs);
-            }, 1500); // CHANGED: linger ~2.5s before fading
+            }, 1500);
           }
 
-          // Trigger on hover and click for accessibility
-          trigger.addEventListener('mouseenter', showLink);  // NEW
-          trigger.addEventListener('focus', showLink);       // NEW (keyboard)
-          trigger.addEventListener('click', showLink);       // NEW
+          trigger.addEventListener('mouseenter', showLink);
+          trigger.addEventListener('focus', showLink);
+          trigger.addEventListener('click', showLink);
 
-          // Optional: re-show if user hovers the revealed buttons
           reveals.forEach(r => {
             r.addEventListener('mouseenter', showLink);
           });
@@ -541,7 +533,6 @@
     </script>
 
   <script>
-      // NEW: timed show → linger → slow fade → hide (cursor independent)
       (function () {
         const groups = document.querySelectorAll('.hover-group2');
 
@@ -554,31 +545,26 @@
           let hideTimer = null;
 
           function showLink() {
-            // clear any pending fades/hides and reset classes
             clearTimeout(fadeTimer);
             clearTimeout(hideTimer);
             reveal.classList.remove('is-fading');
             reveal.classList.add('is-visible');
 
-            // linger time before starting fade (adjust as you like)
             fadeTimer = setTimeout(() => {
               reveal.classList.add('is-fading');
 
-              // wait for CSS transition to finish before fully hiding
-              const fadeDurationMs = 1500; // CHANGED: slow fade duration
+              const fadeDurationMs = 1500;
               hideTimer = setTimeout(() => {
                 reveal.classList.remove('is-visible', 'is-fading');
               }, fadeDurationMs);
-            }, 1500); // CHANGED: linger ~2.5s before fading
+            }, 1500);
           }
 
-          // Trigger on hover and click for accessibility
-          trigger.addEventListener('mouseenter', showLink);  // NEW
-          trigger.addEventListener('focus', showLink);       // NEW (keyboard)
-          trigger.addEventListener('click', showLink);       // NEW
+          trigger.addEventListener('mouseenter', showLink);
+          trigger.addEventListener('focus', showLink);
+          trigger.addEventListener('click', showLink);
 
-          // Optional: re-show if user hovers the revealed button
-          reveal.addEventListener('mouseenter', () => {      // NEW
+          reveal.addEventListener('mouseenter', () => {
             showLink();
           });
         });
