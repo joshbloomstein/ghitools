@@ -16,6 +16,7 @@ from io import StringIO
 from urllib.request import urlretrieve, Request, urlopen
 from urllib.parse import quote
 from shiny import App, reactive, render, ui
+from __future__ import annotations
 
 def generate_url(startdate, enddate, passkey):
     urlstem = 'https://www.amion.com/cgi-bin/ocs?Lo={}&Rpt=625ctabs'.format(
