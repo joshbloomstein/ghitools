@@ -1,6 +1,22 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+import os
+import re
+import requests
+import sys
+
+from datetime import datetime
+from collections import Counter
+from io import StringIO
+from urllib.request import urlretrieve, Request, urlopen
+from urllib.parse import quote
+from shiny import App, reactive, render, ui
+
 def generate_url(startdate, enddate, passkey):
     urlstem = 'https://www.amion.com/cgi-bin/ocs?Lo={}&Rpt=625ctabs'.format(
         passkey
@@ -24,9 +40,11 @@ def fetch_table(url):
         'Connection': 'keep-alive',
     }
 
-    r = requests.get(url, headers = headers, timeout = 60)
-    r.raise_for_status()
-    return StringIO(r.text)
+    req = Request(url, headers = headers)
+    with urlopen(req, timeout = 60) as resp:
+        text = resp.read().decode('utf-8', errors = 'replace')
+
+    return StringIO(text)
 
 
 def download_df(academicYear, passkey):
@@ -60,7 +78,7 @@ def download_df(academicYear, passkey):
     except pd.errors.EmptyDataError:
         return pd.DataFrame([])
 
-    columns = [
+    df.columns = [
         'Name',
         'Assignment',
         'Date',
@@ -70,7 +88,6 @@ def download_df(academicYear, passkey):
         'Type',
         'Assgn',
     ]
-    df.columns = columns
 
     df = df[~df.Role.isnull()]
     df = df[df.Role != 'Services']
@@ -115,14 +132,6 @@ def _parse_date_column(df: pd.DataFrame) -> pd.DataFrame:
         errors = 'coerce',
         infer_datetime_format = True
     )
-
-    if df['Date_dt'].isna().mean() > 0.5:
-        sample = df['Date'].dropna().astype(str).head(5).tolist()
-        raise ValueError(
-            'Could not parse Date reliably. Sample Date values: '
-            + ', '.join(sample)
-        )
-
     return df
 
 
@@ -168,7 +177,6 @@ def _prepare_rotations_df(df: pd.DataFrame) -> pd.DataFrame:
 
 def _rotations_with_repeat_use(df_rot: pd.DataFrame, min_count = 6, window_days = 92) -> set:
     window_ns = int(window_days * 24 * 60 * 60 * 1_000_000_000)
-
     qualifying = set()
 
     df_rot = df_rot.copy()
@@ -190,34 +198,22 @@ def _rotations_with_repeat_use(df_rot: pd.DataFrame, min_count = 6, window_days 
 
 def build_master_rotations(df: pd.DataFrame) -> list[str]:
     df_rot = _prepare_rotations_df(df)
-
-    qualifying = _rotations_with_repeat_use(
-        df_rot = df_rot,
-        min_count = 6,
-        window_days = 92
-    )
-
-    master = sorted(qualifying, key = lambda x: x.lower())
-    return master
+    qualifying = _rotations_with_repeat_use(df_rot = df_rot, min_count = 6, window_days = 92)
+    return sorted(qualifying, key = lambda x: x.lower())
 
 
-def rotations_unfilled_in_month(
-    df: pd.DataFrame,
-    master_rotations: list[str],
-    month_yyyy_mm: str,
-) -> list[str]:
+def rotations_unfilled_in_month(df: pd.DataFrame, master_rotations: list[str], month_yyyy_mm: str) -> list[str]:
     df_rot = _prepare_rotations_df(df)
 
     month_start = pd.to_datetime(month_yyyy_mm + '-01')
     month_end = month_start + pd.offsets.MonthBegin(1)
 
-    in_month = df_rot[
-        (df_rot['Date_dt'] >= month_start) & (df_rot['Date_dt'] < month_end)
-    ]
+    in_month = df_rot[(df_rot['Date_dt'] >= month_start) & (df_rot['Date_dt'] < month_end)]
     filled = set(in_month['Rotation'].dropna().unique().tolist())
 
     unfilled = [r for r in master_rotations if r not in filled]
     unfilled = sorted(set(unfilled), key = lambda x: x.lower())
+    unfilled = [r.replace('*', '') for r in unfilled]
     return unfilled
 
 
@@ -236,14 +232,6 @@ app_ui = ui.page_fluid(
             ui.input_text('month', 'Month to check (YYYY-MM)', value = '2026-02'),
             ui.input_action_button('load', 'Load / Refresh data'),
             ui.input_action_button('check', 'Check month'),
-            ui.hr(),
-            ui.p('Notes:'),
-            ui.tags.ul(
-                ui.tags.li('Rotations built from selected AYs.'),
-                ui.tags.li('Master rotations require ≥6 uses by a person within ~3 months.'),
-                ui.tags.li('Exclusion substrings are applied before counting.'),
-                ui.tags.li('Rotations are cleaned to remove trailing ", am" / ", pm".'),
-            ),
             width = 4
         ),
         ui.div(
@@ -263,34 +251,38 @@ app_ui = ui.page_fluid(
 def server(input, output, session):
     df_state = reactive.Value(pd.DataFrame([]))
     master_state = reactive.Value([])
-    status_state = reactive.Value('Enter passkey, select years, then click Load / Refresh data.')
+    unfilled_state = reactive.Value([])
+    status_state = reactive.Value('Ready. Enter passkey and click Load / Refresh data.')
 
     @reactive.Effect
     @reactive.event(input.load)
     def _load_data():
         passkey = (input.passkey() or '').strip()
-        years = input.years()
+        years = list(input.years() or [])
 
         if passkey == '':
             status_state.set('No passkey entered.')
             df_state.set(pd.DataFrame([]))
             master_state.set([])
+            unfilled_state.set([])
             return
 
         if not years:
             status_state.set('No academic years selected.')
             df_state.set(pd.DataFrame([]))
             master_state.set([])
+            unfilled_state.set([])
             return
 
         try:
             status_state.set('Loading data from Amion...')
-            df = download_df_multi_year(list(years), passkey)
+            df = download_df_multi_year(years, passkey)
 
             if df.empty:
-                status_state.set('Pulled 0 rows. Likely not getting the schedule export.')
+                status_state.set('Pulled 0 rows (or export empty).')
                 df_state.set(pd.DataFrame([]))
                 master_state.set([])
+                unfilled_state.set([])
                 return
 
             status_state.set('Building master rotation list...')
@@ -298,15 +290,17 @@ def server(input, output, session):
 
             df_state.set(df)
             master_state.set(master)
+            unfilled_state.set([])
+
             status_state.set(
                 'Loaded rows = {}, master rotations = {}.'.format(len(df), len(master))
             )
+
         except Exception as e:
-            status_state.set('Error loading/building: {}'.format(e))
+            status_state.set('Load failed (did not crash UI): {}'.format(e))
             df_state.set(pd.DataFrame([]))
             master_state.set([])
-
-    unfilled_state = reactive.Value([])
+            unfilled_state.set([])
 
     @reactive.Effect
     @reactive.event(input.check)
@@ -327,11 +321,10 @@ def server(input, output, session):
 
         try:
             unfilled = rotations_unfilled_in_month(df, master, month)
-            unfilled = [r.replace('*', '') for r in unfilled]
             unfilled_state.set(unfilled)
             status_state.set('Computed openings for {} (n = {}).'.format(month, len(unfilled)))
         except Exception as e:
-            status_state.set('Error computing openings: {}'.format(e))
+            status_state.set('Check failed: {}'.format(e))
             unfilled_state.set([])
 
     @output
@@ -347,10 +340,7 @@ def server(input, output, session):
     @output
     @render.table
     def unfilled_table():
-        unfilled = unfilled_state.get()
-        if not unfilled:
-            return pd.DataFrame({'Rotation': []})
-        return pd.DataFrame({'Rotation': unfilled})
+        return pd.DataFrame({'Rotation': unfilled_state.get()})
 
     @output
     @render.text
@@ -362,13 +352,3 @@ def server(input, output, session):
 
 
 app = App(app_ui, server)
-
-if __name__ == '__main__':
-    # run with: python3 your_file.py
-    # (or: shiny run --reload your_file.py)
-    try:
-        from shiny import run_app
-        run_app(app)
-    except Exception:
-        # fallback for environments that auto-run App without run_app
-        pass
