@@ -11,7 +11,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-import os
 import re
 import requests
 import sys
@@ -24,12 +23,6 @@ from urllib.parse import quote
 from shiny import App, reactive, render, ui
 
 pd.set_option('display.max_rows', None)
-
-cwd = os.getcwd()
-
-if cwd != '/Users/Josh/Desktop/ipython/Data editing/':
-    os.chdir('/Users/Josh/Desktop/ipython/Data editing/')
-
 
 # In[ ]:
 
