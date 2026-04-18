@@ -4,7 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ghitools</title>
-</h1>
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Allura&display=swap" rel="stylesheet">
@@ -246,25 +245,34 @@
       z-index: 999999 !important;
     }
 
-    /* POPUP TEXT — reset everything that could be making text invisible */
     .site-title.ghitools-title .title-pop{
-      all: initial !important;                 /* <-- key line */
       position: absolute !important;
       left: 50% !important;
-      bottom: calc(100% + 14px) !important;
-      transform: translateX(-50%) translateY(8px) !important;
+      bottom: auto !important;
+      transform: translateX(-50%) translateY(0) !important;
 
       display: block !important;
       opacity: 0 !important;
+      
+      transition:
+        opacity 0.25s ease,
+        transform 0.25s ease,
+        visibility 0s linear 0.25s;
       pointer-events: none !important;
 
-      padding: 10px 14px !important;
+      padding: 8px 14px !important;
       border-radius: 14px !important;
       background: rgba(255,202,40,.98) !important;
-      box-shadow: 0 18px 50px rgba(0,0,0,.35) !important;
+
+      border: 3px solid rgba(255,202,40,.98);
+
+      box-shadow:
+        0 0 0 3px rgba(255,202,40,.98);,
+        0 6px 0 rgba(255,202,40,.98);,
+        0 18px 40px rgba(255,202,40,.98);
 
       font-family: "Palatino Linotype", Palatino, serif !important;
-      font-size: 14px !important;
+      font-size: 18px !important;
       line-height: 1.2 !important;
 
       color: #111 !important;
@@ -276,14 +284,13 @@
 
       white-space: normal !important;
       width: max-content !important;
-      max-width: 420px !important;
+      max-width: none !important;
 
-      z-index: 2147483647 !important;         /* top of world */
+      z-index: 2147483647 !important;
     }
 
-    /* LIGHTNING BURST */
+
     .site-title.ghitools-title .title-burst{
-      all: initial !important;                 /* reset too */
       position: absolute !important;
       inset: -45% !important;
       opacity: 0 !important;
@@ -313,16 +320,21 @@
       filter: blur(1px) !important;
     }
 
-    /* HOVER */
     .site-title.ghitools-title:hover .title-burst{
       animation: lightningFlash 800ms ease-out both !important;
     }
 
     .site-title.ghitools-title:hover .title-pop{
-      animation: popFade 1600ms ease-out both !important;
+      opacity: 1 !important;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0) !important;
+
+      transition:
+        opacity 0.25s ease,
+        transform 0.25s ease,
+        visibility 0s;
     }
 
-    /* ANIMATIONS */
     @keyframes lightningFlash{
       0%   { opacity: 0; transform: scale(.9) rotate(-8deg); }
       15%  { opacity: 1; transform: scale(1.08) rotate(7deg); }
@@ -337,7 +349,6 @@
       100% { opacity: 0; transform: translateX(-50%) translateY(-6px); }
     }
 
-    /* Avoid clipping */
     .hero, .container{
       overflow: visible !important;
     }
@@ -364,7 +375,7 @@
         <span class="title-text">Ghitools</span>
 
         <span class="title-pop" aria-hidden="true">
-          ⚡ Greatest Housestaff in the Infinite Lore of Spacetime
+          Greatest Housestaff in the Infinite Lore of Spacetime
         </span>
 
         <span class="title-burst" aria-hidden="true"></span>
