@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ghitools</title>
+</h1>
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Allura&display=swap" rel="stylesheet">
@@ -236,6 +237,110 @@
 .scroll-down:hover {
   background: rgba(0,0,0,0.65);
 }
+
+    .site-title.ghitools-title{
+      position: relative !important;
+      display: inline-block !important;
+      cursor: pointer !important;
+      overflow: visible !important;
+      z-index: 999999 !important;
+    }
+
+    /* POPUP TEXT — reset everything that could be making text invisible */
+    .site-title.ghitools-title .title-pop{
+      all: initial !important;                 /* <-- key line */
+      position: absolute !important;
+      left: 50% !important;
+      bottom: calc(100% + 14px) !important;
+      transform: translateX(-50%) translateY(8px) !important;
+
+      display: block !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+
+      padding: 10px 14px !important;
+      border-radius: 14px !important;
+      background: rgba(255,202,40,.98) !important;
+      box-shadow: 0 18px 50px rgba(0,0,0,.35) !important;
+
+      font-family: "Palatino Linotype", Palatino, serif !important;
+      font-size: 14px !important;
+      line-height: 1.2 !important;
+
+      color: #111 !important;
+      -webkit-text-fill-color: #111 !important;
+
+      text-shadow: none !important;
+      mix-blend-mode: normal !important;
+      filter: none !important;
+
+      white-space: normal !important;
+      width: max-content !important;
+      max-width: 420px !important;
+
+      z-index: 2147483647 !important;         /* top of world */
+    }
+
+    /* LIGHTNING BURST */
+    .site-title.ghitools-title .title-burst{
+      all: initial !important;                 /* reset too */
+      position: absolute !important;
+      inset: -45% !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      mix-blend-mode: screen !important;
+      z-index: 2147483646 !important;
+
+      background:
+        radial-gradient(circle at 35% 35%, rgba(255,255,255,.95),
+                        rgba(255,255,255,0) 55%),
+        radial-gradient(circle at 70% 60%, rgba(255,202,40,.95),
+                        rgba(255,202,40,0) 60%),
+        conic-gradient(
+          from 210deg,
+          rgba(255,255,255,0) 0deg,
+          rgba(255,255,255,.95) 12deg,
+          rgba(255,255,255,0) 22deg,
+          rgba(255,202,40,.95) 70deg,
+          rgba(255,202,40,0) 95deg,
+          rgba(255,255,255,.85) 140deg,
+          rgba(255,255,255,0) 175deg,
+          rgba(255,202,40,.9) 240deg,
+          rgba(255,202,40,0) 290deg,
+          rgba(255,255,255,.8) 360deg
+        );
+
+      filter: blur(1px) !important;
+    }
+
+    /* HOVER */
+    .site-title.ghitools-title:hover .title-burst{
+      animation: lightningFlash 800ms ease-out both !important;
+    }
+
+    .site-title.ghitools-title:hover .title-pop{
+      animation: popFade 1600ms ease-out both !important;
+    }
+
+    /* ANIMATIONS */
+    @keyframes lightningFlash{
+      0%   { opacity: 0; transform: scale(.9) rotate(-8deg); }
+      15%  { opacity: 1; transform: scale(1.08) rotate(7deg); }
+      45%  { opacity: .55; transform: scale(1.2) rotate(-2deg); }
+      100% { opacity: 0; transform: scale(1.35) rotate(14deg); }
+    }
+
+    @keyframes popFade{
+      0%   { opacity: 0; transform: translateX(-50%) translateY(10px); }
+      18%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+      70%  { opacity: 1; }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+    }
+
+    /* Avoid clipping */
+    .hero, .container{
+      overflow: visible !important;
+    }
   </style>
 </head>
 <body>
@@ -255,7 +360,15 @@
      ">
     </a>
     <div class="container">
-      <h1 class="site-title">Ghitools</h1>
+      <h1 class="site-title ghitools-title">
+        <span class="title-text">Ghitools</span>
+
+        <span class="title-pop" aria-hidden="true">
+          ⚡ Greatest Housestaff in the Infinite Lore of Spacetime
+        </span>
+
+        <span class="title-burst" aria-hidden="true"></span>
+      </h1>
 
       <div class="grid">
         <article class="card" id="col1">
@@ -314,12 +427,13 @@
         </article>
       </div>
 
-      <div class="scroll-cue"><a href="#toolkits" style="color:inherit;text-decoration:none">Scroll for more ↓</a></div>
+      <div class="scroll-cue"><a href="#toolkits" style="color:inherit;text-decoration:none">Scroll for more ↓</a></div> 
     </div>
 
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
 
     <div class="credit" style="font-family: 'Dancing Script', cursive; font-size: 20px;"">PC: Hasan Nadeem</div>
+    <span id="darkModeBtn" style="color:white;position:absolute;bottom:5px;left:40px;font-family:Lora;font-size:16px;cursor:pointer;">Dark Mode</span>
   </section>
 
   <!-- PAGE 2 -->
@@ -579,6 +693,19 @@
           });
         });
       })();
+    </script>
+
+    <script>
+document.getElementById("darkModeBtn").onclick = async () => {
+    const url = "chrome://flags/#enable-force-dark";
+
+    await navigator.clipboard.writeText(url);
+
+    alert(
+        "Copied" +
+        url
+        );
+    };
     </script>
 
 </body>
