@@ -542,16 +542,25 @@
     </div>
 
     <a href="#"
-    onclick="let w=window.open('','_blank');
-    w.document.write(`<html><head><title>In Memory of Dr. Stephen Njau</title><style>
-    body{background:black;color:white;font-family:Baskerville,serif;text-align:center;padding-top:80px;}
+    onclick="window.open().document.write(`
+    <html>
+    <head>
+    <title>In Memory of Dr. Stephen Njau</title>
+    <style>
+    body{background:black;color:white;font-family:Baskerville,serif;text-align:center;padding-top:40px;margin:0;}
+    img{max-width:90%;max-height:500px;margin:25px auto;display:block;}
     a{display:block;color:white;font-size:24px;margin:25px;text-decoration:underline;}
-    </style></head><body>
-    <img src='https://user.github.io/ghitools/photo.html'>
-    <a href='https://yourdocumentlink.com' target='_blank'>Vigil Transcript</a>
+    </style>
+    </head>
+    <body>
+    <img src='https://user.github.io/ghitools/photo.jpg'>
+    <a href='https://joshbloomstein.github.io/ghitools/Stephen Njau vigil transcript.docx' target='_blank'>Vigil Transcript</a>
     <a href='https://drive.google.com/file/d/1veF0wq4v6VlhQqNAc4QNeUSplaCCW-o8/view?usp=drive_link' target='_blank'>Remembering Stephen Njau Recording</a>
+    </body>
+    </html>
+    `);
     return false;"
-    style="color:white;text-decoration:underline;position:absolute;bottom:5px;left:40px;font-family:'Baskerville';font-size:18px;">
+    style="color:white;text-decoration:underline;position:absolute;bottom:5px;left:40px;font-family:'Baskerville';font-size:18px;cursor:pointer;">
     In Memory of Dr. Stephen Njau
     </a>
   </section>
